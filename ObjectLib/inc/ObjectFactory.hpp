@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 
 #include <memory>
 #include <Object.hpp>
@@ -9,14 +9,14 @@
 
 class ObjectFactory {
 public:
-    static std::shared_ptr<Object> createObject(const std::string& type) {
-        if (type == "Здание") {
+    static std::shared_ptr<Object> createObject(const std::wstring& type) {
+        if (type == L"Здание") {
             return std::make_shared<Building>();
-        } else if (type == "Машина") {
+        } else if (type == L"Машина") {
             return std::make_shared<Car>();
-        } else if (type == "Человек") {
+        } else if (type == L"Человек") {
             return std::make_shared<Human>();
-        } else if (type == "Дерево") {
+        } else if (type == L"Дерево") {
             return std::make_shared<Tree>();
         } else {
             return nullptr;

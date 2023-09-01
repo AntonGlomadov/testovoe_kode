@@ -1,8 +1,9 @@
-#pragma once
+﻿#pragma once
 #include <Object.hpp>
 
 class Tree : public Object{
 public:
     Tree();
-    Tree(std::string name, double x, double y);
+    ~Tree();
+    Tree(std::wstring name, double x, double y);
 };

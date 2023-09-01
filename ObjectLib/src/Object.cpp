@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 #include <Object.hpp>
 #include <Utils/Time.hpp>
 #include <utility>
@@ -7,12 +7,12 @@ Object::Object() {
     _creationTime = utils::getCurrentTimeInMillisecondsDouble();
 }
 
-Object::Object(std::string name, double x, double y): _name(std::move(name)), _coordinates({x, y}){
+Object::Object(std::wstring name, double x, double y): _name(std::move(name)), _coordinates({x, y}){
     _creationTime = utils::getCurrentTimeInMillisecondsDouble();
 
 }
 
-void Object::SetName(std::string name) {
+void Object::SetName(std::wstring name) {
     _name = std::move(name);
 }
 
@@ -21,7 +21,7 @@ void Object::SetCoordinates(double x, double y) {
     _coordinates._y = y;
 }
 
-std::string Object::GetName() {
+std::wstring Object::GetName() {
     return _name;
 }
 
@@ -33,16 +33,23 @@ Point Object::GetCoordinates() {
     return _coordinates;
 }
 
-std::string Object::GetType() {
+std::wstring Object::GetType() {
     return _type;
 }
 
-std::string Object::toString() {
-    return _name+" "+_coordinates.toString()+" "+_type+" "+std::to_string(_creationTime);
+std::wstring Object::toString() {
+    return _name+L" "+_coordinates.toString()+L" "+_type+L" "+std::to_wstring(_creationTime);
 }
 
 double Object::distanceToObject(const Point& point) {
     return distanceBetweenPoints(point,_coordinates);
+}
+
+int Object::GetNumberOfObjectWithSameType() {
+    if (type_counts.find(_type) != type_counts.end()) {
+        return type_counts[_type];
+    }
+    return 0;
 }
 
 

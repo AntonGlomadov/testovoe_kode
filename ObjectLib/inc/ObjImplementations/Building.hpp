@@ -1,9 +1,10 @@
-#pragma once
+﻿#pragma once
 #include <Object.hpp>
 
 class Building : public Object{
 public:
     Building();
-    Building(std::string name, double x, double y);
+    ~Building();
+    Building(std::wstring name, double x, double y);
 };
 
