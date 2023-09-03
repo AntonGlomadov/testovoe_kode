@@ -24,7 +24,7 @@ std::unordered_map<int,std::shared_ptr<Object>>FileReaderWrite::GetObjects() {
         double x, y;
         std::wstring type;
         double creationTime;
-
+        //iss.imbue(std::locale("C"));
         if (iss >> name >> x >> y >> type >> creationTime) {
             auto object= ObjectFactory::createObject(type, name, x,y,creationTime);
             objects[object->GetId()] = object;

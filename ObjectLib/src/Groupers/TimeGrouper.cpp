@@ -61,7 +61,7 @@ void TimeGrouper::ObjectAddCall(int i, const std::shared_ptr<Object> &object) {
 
 void TimeGrouper::AddToGroupByTime(int id, double time) {
     auto now = std::chrono::system_clock::now();
-    auto creationTime = std::chrono::system_clock::from_time_t(time);
+    auto creationTime = std::chrono::system_clock::from_time_t(static_cast<__time64_t>(time));
     auto hoursSinceCreation = std::chrono::duration_cast<std::chrono::hours>(now - creationTime).count();
     constexpr long long hoursPerDay = 24;
     auto daysSinceCreation = hoursSinceCreation / hoursPerDay;

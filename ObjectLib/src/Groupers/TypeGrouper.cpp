@@ -19,6 +19,7 @@ void TypeGrouper::Group() {
     _names.clear();
     _groups.clear();
     _names.insert(L"Разное");
+    _groups[L"Разное"] = std::set<int, decltype(_compareFunc)>{_compareFunc};
     for (const auto &obj: _objects) {
         auto type = obj.second->GetType();
         auto typeNum = obj.second->GetNumberOfObjectWithSameType();
@@ -34,7 +35,7 @@ void TypeGrouper::AddToGroupByType(int id, const std::wstring& type, int typeNum
         }
         _groups[type].insert(id);
     } else{
-        _groups[type].insert(id);
+        _groups[L"Разное"].insert(id);
     }
 }
 
