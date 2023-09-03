@@ -11,9 +11,8 @@ Object::Object() {
     _creationTime = utils::getCurrentTimeInMillisecondsDouble();
 }
 
-Object::Object(std::wstring name, double x, double y): _name(std::move(name)), _coordinates({x, y}){
+Object::Object(std::wstring name, double x, double y,double creationTime): _name(std::move(name)), _coordinates({x, y}), _creationTime(creationTime){
     _id =_nextId++;
-    _creationTime = utils::getCurrentTimeInMillisecondsDouble();
 }
 
 void Object::SetName(std::wstring name) {

@@ -1,18 +1,76 @@
-﻿//
-// Created by Glomadov on 01.09.2023.
-//
-#include "Groupers/TypeGrouper.hpp"
+﻿#include <Groupers/TypeGrouper.hpp>
 
-std::map<std::wstring, std::vector<std::shared_ptr<Object>>>
-TypeGrouper::sortByTypeNumber(const std::unordered_map<int,std::shared_ptr<Object>> &data, unsigned int n) {
-    std::map<std::wstring, std::vector<std::shared_ptr<Object>>> groupedObjects;
-    for (const auto& obj : data) {
-        if (obj.second->GetNumberOfObjectWithSameType() >= n){
-            groupedObjects[obj.second->GetType()].push_back(obj.second);
-        } else{
-            groupedObjects[L"Разное"].push_back(obj.second);
+TypeGrouper::TypeGrouper(std::unordered_map<int, std::shared_ptr<Object>> &data)
+                                        : Grouper<std::set<std::wstring>>(data){
+    _compareFunc = [this](int a, int b) -> bool {
+        auto name1 = _objects[a]->GetName();
+        auto name2 = _objects[b]->GetName();
+        if (name1 < name2) {
+            return true;
+        } else if (name1 > name2) {
+            return false;
+        } else {
+            return a < b;
+        }
+    };
+}
+
+void TypeGrouper::Group() {
+    _names.clear();
+    _groups.clear();
+    _names.insert(L"Разное");
+    for (const auto &obj: _objects) {
+        auto type = obj.second->GetType();
+        auto typeNum = obj.second->GetNumberOfObjectWithSameType();
+        AddToGroupByType(obj.first,type,typeNum);
+    }
+}
+
+void TypeGrouper::AddToGroupByType(int id, const std::wstring& type, int typeNumber) {
+    if (typeNumber>minNum){
+        if(_groups.find(type) == _groups.end()) {
+            _groups[type] = std::set<int, decltype(_compareFunc)>{_compareFunc};
+            _names.insert(type);
+        }
+        _groups[type].insert(id);
+    } else{
+        _groups[type].insert(id);
+    }
+}
+
+void TypeGrouper::ObjectAddCall(int i, const std::shared_ptr<Object> &object) {
+    auto type = object->GetType();
+    auto typeNum = object->GetNumberOfObjectWithSameType();
+    AddToGroupByType(i,type,typeNum);
+}
+
+std::vector<int> TypeGrouper::GetObjectsInGroup(std::wstring groupName) {
+    std::vector<int> result;
+    auto groupObjects = _groups[groupName];
+    for(auto& id: groupObjects){
+        result.emplace_back(id);
+    }
+    return result;
+}
+
+std::vector<int> TypeGrouper::GetAllObject() {
+    std::vector<int> result;
+    for(auto& groupName:_names){
+        auto groupObjects = _groups[groupName];
+        for(auto& id: groupObjects){
+            result.emplace_back(id);
         }
     }
-    return groupedObjects;
+    return result;
 }
+
+int TypeGrouper::GetMinNumberForType() {
+    return minNum;
+}
+
+void TypeGrouper::SetMinNumberForType(int num) {
+    minNum = num;
+}
+
+
 

@@ -5,7 +5,7 @@ class Human : public Object{
 public:
     Human();
     ~Human();
-    Human(std::wstring name, double x, double y);
+    Human(std::wstring name, double x, double y,double creationTime);
 };
 
 

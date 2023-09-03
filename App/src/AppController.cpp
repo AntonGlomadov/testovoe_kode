@@ -3,11 +3,50 @@
 #include <iostream>
 #include <thread>
 #include <sstream>
-#include <Reader/Implementations/FileReader.hpp>
+#include <Reader/Implementations/FileReaderWrite.hpp>
 #include <Object/Impl/Car.hpp>
 #include <Object/Impl/Building.hpp>
 #include <Object/Impl/Human.hpp>
 #include <Object/Impl/Tree.hpp>
+
+
+double getDoubleFromConsole(){
+    double userInput;
+    std::wstring inputStr;
+    while (true) {
+        std::wcout << L"Введите число (с точкой или запятой в качестве разделителя): ";
+        std::wcin >> inputStr;
+        std::replace(inputStr.begin(), inputStr.end(), L'.', L',');
+        std::wistringstream inputStream(inputStr);
+        if (inputStream >> userInput) {
+            return userInput;
+        } else {
+            std::wcout << L"Некорректный ввод. Пожалуйста, введите число еще раз." << std::endl;
+            std::wcin.clear();
+            std::wcin.ignore(std::numeric_limits<std::streamsize>::max(), L'\n');
+        }
+    }
+}
+
+int getIntFromConsole() {
+    int userInput;
+    std::wstring inputStr;
+    while (true) {
+        std::wcout << L"Введите целое число: ";
+        std::wcin >> inputStr;
+        std::wistringstream inputStream(inputStr);
+        if (inputStream >> userInput) {
+            std::wstring remainingText;
+            if (!(inputStream >> remainingText)) {
+                return userInput;
+            }
+        }
+        std::wcout << L"Некорректный ввод. Пожалуйста, введите целое число еще раз." << std::endl;
+        std::wcin.clear();
+        std::wcin.ignore(std::numeric_limits<std::streamsize>::max(), L'\n');
+    }
+}
+
 
 AppController::AppController() {
     _isWorking = true;
@@ -27,7 +66,7 @@ void AppController::HelloMessage() {
             <<L"Если хотите выйти - 0"<<std::endl
             <<L"Если хотите продолжить работать со стандартным файлом введите - 1"<<std::endl
             <<L"Если хотите выбрать свой файл введите - 2"<<std::endl
-              <<L"!!! УЧТИТЕ ЧТО СТРУКТУРА ФАЙЛА ДОЛЖНА СООТВЕТСТВОВАТЬ СТУКТУРЕ ПРИМЕРА !!! "<<std::endl;
+              <<L"!!! УЧТИТЕ ЧТО СТРУКТУРА ФАЙЛА ДОЛЖНА СООТВЕТСТВОВАТЬ СТУКТУРЕ ПРИМЕРА !!! "<<std::endl<<std::endl;
     int choice;
     std::wcout<<L"Ввод: ";
     std::wcin >> choice;
@@ -61,7 +100,7 @@ void AppController::GetAnotherPath() {
 }
 
 void AppController::Init() {
-    _controller = std::make_unique<ObjectsController>(std::make_unique<FileReader>(_filePath));
+    _controller = std::make_unique<ObjectsController>(std::make_unique<FileReaderWrite>(_filePath));
     _controller->Init();
     _jobCall = &AppController::MainMenu;
 
@@ -75,7 +114,7 @@ void AppController::MainMenu() {
             <<L"Добавить объект - 2"<<std::endl
             <<L"Группировать объекты - 3"<<std::endl
             <<L"Сохранить - 4"<<std::endl
-            <<L"Выйти - 0"<<std::endl;
+            <<L"Выйти - 0"<<std::endl<<std::endl;
     int choice;
     std::wcout<<L"Ввод: ";
     std::wcin >> choice;
@@ -173,23 +212,6 @@ std::shared_ptr<Object> chooseType(){
     }
 }
 
-double getNumberFromConsole(){
-    double userInput;
-    std::wstring inputStr;
-    while (true) {
-        std::wcout << L"Введите число (с точкой или запятой в качестве разделителя): ";
-        std::wcin >> inputStr;
-        std::replace(inputStr.begin(), inputStr.end(), L'.', L',');
-        std::wistringstream inputStream(inputStr);
-        if (inputStream >> userInput) {
-            return userInput;
-        } else {
-            std::wcout << L"Некорректный ввод. Пожалуйста, введите число еще раз." << std::endl;
-            std::wcin.clear();
-            std::wcin.ignore(std::numeric_limits<std::streamsize>::max(), L'\n');
-        }
-    }
-}
 
 void AppController::AddObject() {
     std::wcout<<L"Добавление объекта"<<std::endl<<std::endl;
@@ -200,9 +222,9 @@ void AppController::AddObject() {
         std::wcin >> name;
         object->SetName(name);
         std::wcout << L"Введите координату x:"<<std::endl;
-        double x = getNumberFromConsole();
+        double x = getDoubleFromConsole();
         std::wcout << L"Введите координату y:"<<std::endl;
-        double y = getNumberFromConsole();
+        double y = getDoubleFromConsole();
         object->SetCoordinates(x, y);
         _controller->AddObject(object);
         system("cls");
@@ -214,7 +236,7 @@ void AppController::AddObject() {
 void AppController::Save() {
     _controller->SaveObjects();
     std::wcout << L"Файл успешно сохранен"<<std::endl;
-    std::this_thread::sleep_for(std::chrono::seconds(2));
+    std::this_thread::sleep_for(std::chrono::seconds(1));
     _jobCall = &AppController::MainMenu;
 }
 
@@ -222,7 +244,11 @@ void AppController::Group() {
     std::wcout<<L"Выберите тип группировки"<<std::endl<<std::endl
               <<L"Типы:"<<std::endl
               <<L"Отмена создания - 0"<<std::endl
-              <<L"По алфавиту - 1"<<std::endl;
+              <<L"По дистанции - 1"<<std::endl
+              <<L"По времени создания объектов - 2"<<std::endl
+              <<L"По типу объектов - 3"<<std::endl
+              <<L"По имени - 4"<<std::endl;
+
 
     int choice;
     std::wcout<<L"Ввод: ";
@@ -231,6 +257,12 @@ void AppController::Group() {
         _jobCall = &AppController::MainMenu;
     }
     else if (choice == 1){
+        _jobCall = &AppController::GroupByDistance;
+    }else if (choice == 2){
+        _jobCall = &AppController::GroupByCreationTime;
+    }else if (choice == 3){
+        _jobCall = &AppController::GroupByType;
+    }else if (choice == 4){
         _jobCall = &AppController::GroupByAlphabet;
     }else{
         std::wcout<<L"Не верный ввод"<<std::endl<<std::endl;
@@ -239,22 +271,162 @@ void AppController::Group() {
     }
 }
 
-void AppController::GroupByAlphabet() {
-    _controller->sorByAlphabetGrouper();
-   auto groupsName = _controller->getAlphabetGroupsNames();
-    std::wcout<<L"Группировка по алфавиту"<<std::endl<<std::endl<<L"Существующие группы: "<<std::endl;
-    for(auto& group: groupsName){
-        std::wcout<<group<<std::endl;
+void AppController::GroupByDistance() {
+    if (_distanceGrouper == nullptr){
+        _distanceGrouper = std::make_unique<DistanceGrouper>(_controller->GetObjects());
+        _distanceGrouper->Group();
+        _controller->subscribeToModification([this](int id, const std::shared_ptr<Object> & object) {
+            _distanceGrouper->ObjectAddCall(id, object);
+        });
     }
-    std::wcout<<L"Для просмотра объектов в группе введите соответствующий символ"<<std::endl<<std::endl;
+    if (_regroup){
+        _distanceGrouper->Group();
+        _regroup = false;
+    }
 
-    wchar_t choice;
+    auto point = _distanceGrouper->GetPointFrom();
+    std::wcout<<L"Группировка по дистанции относительно точки: "<<point.toString()<<std::endl<<std::endl;
+    auto groupsNames = _distanceGrouper->GetNames();
+    for(auto& group: groupsNames){
+        std::wcout<<std::endl<<"-=-=-=--=--=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-"<<std::endl;
+        std::wcout<<group<<std::endl;
+        std::wcout<<"-=-=-=--=--=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-"<<std::endl<<std::endl;
+        auto objInGroups = _distanceGrouper->GetObjectsInGroup(group);
+        for(auto& id:objInGroups){
+            std::wcout<< _controller->getObjectById(id)->toString()<<std::endl;
+        }
+    }
+    std::wcout<<L"Функции"<<std::endl<<std::endl
+              <<L"Вернуться в главное меню - 0"<<std::endl
+              <<L"Сохранить файл в соответствии с группировкой - 1"<<std::endl
+              <<L"Изменить начальную точку - 2"<<std::endl;
+
+    int choice;
     std::wcout<<L"Ввод: ";
     std::wcin >> choice;
+    if (choice == 0){
+        _jobCall = &AppController::MainMenu;
+    } else if (choice == 1){
+        _controller->SaveObjectsInSpecifiedOrder(_distanceGrouper->GetAllObject());
+        std::wcout << L"Файл успешно сохранен"<<std::endl;
+        std::this_thread::sleep_for(std::chrono::seconds(1));
+    } else if(choice == 2){
+        system("cls");
+        std::wcout << L"Введите координату x:"<<std::endl;
+        double x = getDoubleFromConsole();
+        std::wcout << L"Введите координату y:"<<std::endl;
+        double y = getDoubleFromConsole();
+        _distanceGrouper->SetPointFrom({x,y});
+        _regroup = true;
+    }
+}
 
-    auto it  = groupsName.find(choice);
-    if (it != groupsName.end()) {
-        _
+void AppController::GroupByCreationTime() {
+    if (_timeGrouper == nullptr){
+        _timeGrouper = std::make_unique<TimeGrouper>(_controller->GetObjects());
+        _timeGrouper->Group();
+        _controller->subscribeToModification([this](int id, const std::shared_ptr<Object> & object) {
+            _timeGrouper->ObjectAddCall(id, object);
+        });
     }
 
+    std::wcout<<L"Группировка по времени добавления: "<<std::endl<<std::endl;
+    auto groupsNames = _timeGrouper->GetNames();
+    for(auto& group: groupsNames){
+        std::wcout<<group<<std::endl;
+        auto objInGroups = _timeGrouper->GetObjectsInGroup(group);
+        for(auto& id:objInGroups){
+            std::wcout<< _controller->getObjectById(id)->toString()<<std::endl;
+        }
+    }
+    std::wcout<<L"Функции"<<std::endl<<std::endl
+              <<L"Вернуться в главное меню - 0"<<std::endl
+              <<L"Сохранить файл в соответствии с группировкой - 1"<<std::endl;
+    int choice;
+    std::wcout<<L"Ввод: ";
+    std::wcin >> choice;
+    if (choice == 0){
+        _jobCall = &AppController::MainMenu;
+    } else if (choice == 1){
+        _controller->SaveObjectsInSpecifiedOrder(_timeGrouper->GetAllObject());
+        std::wcout << L"Файл успешно сохранен"<<std::endl;
+        std::this_thread::sleep_for(std::chrono::seconds(1));
+    }
+}
+
+void AppController::GroupByType() {
+    if (_typeGrouper == nullptr){
+        _typeGrouper = std::make_unique<TypeGrouper>(_controller->GetObjects());
+        _typeGrouper->Group();
+        _controller->subscribeToModification([this](int id, const std::shared_ptr<Object> & object) {
+            _typeGrouper->ObjectAddCall(id, object);
+        });
+    }
+    if(_regroup){
+        _typeGrouper->Group();
+        _regroup = false;
+    }
+
+    std::wcout<<L"Группировка по типам. Группа создается если элементов больше: "<< _typeGrouper->GetMinNumberForType()<<std::endl<<std::endl;
+    auto groupsNames = _typeGrouper->GetNames();
+    for(auto& group: groupsNames){
+        std::wcout<<group<<std::endl;
+        auto objInGroups = _typeGrouper->GetObjectsInGroup(group);
+        for(auto& id:objInGroups){
+            std::wcout<< _controller->getObjectById(id)->toString()<<std::endl;
+        }
+    }
+    std::wcout<<L"Функции"<<std::endl<<std::endl
+              <<L"Вернуться в главное меню - 0"<<std::endl
+              <<L"Сохранить файл в соответствии с группировкой - 1"<<std::endl
+              <<L"Изменить необходимое кол-во элементов - 2"<<std::endl;
+    int choice;
+    std::wcout<<L"Ввод: ";
+    std::wcin >> choice;
+    if (choice == 0){
+        _jobCall = &AppController::MainMenu;
+    } else if (choice == 1){
+        _controller->SaveObjectsInSpecifiedOrder(_typeGrouper->GetAllObject());
+        std::wcout << L"Файл успешно сохранен"<<std::endl;
+        std::this_thread::sleep_for(std::chrono::seconds(1));
+    }else if (choice == 2){
+        system("cls");
+        std::wcout << L"Введите координату x:"<<std::endl;
+        double x = getDoubleFromConsole();
+        _typeGrouper->SetMinNumberForType(x);
+        _regroup = true;
+    }
+}
+
+void AppController::GroupByAlphabet() {
+    if (_alphabetGrouper == nullptr){
+        _alphabetGrouper = std::make_unique<AlphabetGrouper>(_controller->GetObjects());
+        _alphabetGrouper->Group();
+        _controller->subscribeToModification([this](int id, const std::shared_ptr<Object> & object) {
+            _alphabetGrouper->ObjectAddCall(id, object);
+        });
+    }
+
+    std::wcout<<L"Группировка по имени."<<std::endl<<std::endl;
+    auto groupsNames = _alphabetGrouper->GetNames();
+    for(auto& group: groupsNames){
+        std::wcout<<group<<std::endl;
+        auto objInGroups = _alphabetGrouper->GetObjectsInGroup(group);
+        for(auto& id:objInGroups){
+            std::wcout<< _controller->getObjectById(id)->toString()<<std::endl;
+        }
+    }
+    std::wcout<<L"Функции"<<std::endl<<std::endl
+              <<L"Вернуться в главное меню - 0"<<std::endl
+              <<L"Сохранить файл в соответствии с группировкой - 1"<<std::endl;
+    int choice;
+    std::wcout<<L"Ввод: ";
+    std::wcin >> choice;
+    if (choice == 0){
+        _jobCall = &AppController::MainMenu;
+    } else if (choice == 1){
+        _controller->SaveObjectsInSpecifiedOrder(_alphabetGrouper->GetAllObject());
+        std::wcout << L"Файл успешно сохранен"<<std::endl;
+        std::this_thread::sleep_for(std::chrono::seconds(1));
+    }
 }

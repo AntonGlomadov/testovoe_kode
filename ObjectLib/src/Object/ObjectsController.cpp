@@ -16,6 +16,9 @@ void ObjectsController::SaveObjects() {
 
 void ObjectsController::AddObject(const std::shared_ptr<Object>& object) {
     _objects.insert(std::make_pair(object->GetId(), object));
+    for (const auto& callback : _callbacks) {
+        callback(object->GetId(), object);
+    }
 }
 
 std::vector<std::shared_ptr<Object>> ObjectsController::GetObjects(unsigned long long startIndex, unsigned long long endIndex) {
@@ -43,23 +46,20 @@ size_t ObjectsController::GetNumberOfObject() {
     return _objects.size();
 }
 
-void ObjectsController::subscribeToModification(std::function<void(const std::shared_ptr<Object> &)> callback) {
+void ObjectsController::subscribeToModification(std::function<void(int id, const std::shared_ptr<Object> &)> callback) {
     _callbacks.push_back(callback);
 }
 
-void ObjectsController::sorByAlphabetGrouper() {
-    if (_alphabetGrouper == nullptr) {
-        _alphabetGrouper = std::make_shared<AlphabetGrouper>();
-        _alphabetGrouper->sortByRuAlphabet(_objects);
-        this->subscribeToModification([this](const std::shared_ptr<Object> &obj) {
-            _alphabetGrouper->ObjectAddCall(obj);
-        });
-    }
+std::unordered_map<int, std::shared_ptr<Object>> &ObjectsController::GetObjects() {
+    return _objects;
 }
 
-std::set<wchar_t> ObjectsController::getAlphabetGroupsNames() {
-    return _alphabetGrouper->getGroupsNames();
+void ObjectsController::SaveObjectsInSpecifiedOrder(const std::vector<int> &order) {
+    _readWriteInterface->SaveInSpecifiedOrder(_objects,order);
 }
+
+
+
 
 
 

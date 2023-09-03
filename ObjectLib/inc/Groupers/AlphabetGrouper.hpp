@@ -4,27 +4,23 @@
 #include <string>
 #include <vector>
 #include <memory>
-
-#include <Object/Object.hpp>
 #include <set>
 
-struct NameComparator {
-    bool operator()( const std::shared_ptr<Object>& obj1,  const std::shared_ptr<Object>& obj2) const {
-        return obj1->GetName() < obj2->GetName();
-    }
-};
+#include <Object/Object.hpp>
+#include <Groupers/Grouper.hpp>
 
-class AlphabetGrouper {
+
+class AlphabetGrouper: public Grouper<std::set<std::wstring>> {
 public:
-    AlphabetGrouper();
-    void sortByRuAlphabet(const std::unordered_map<int,std::shared_ptr<Object>>& data);
-    void ObjectAddCall( const std::shared_ptr<Object>& object);
-    std::vector<std::shared_ptr<Object>> GetGroupValueByKey(std::wstring val);
-    std::set<wchar_t> getGroupsNames();
-private:
+    AlphabetGrouper(std::unordered_map<int, std::shared_ptr<Object>>& data);
+    void Group() override;
+    std::vector<int> GetObjectsInGroup(std::wstring groupName) override;
+    std::vector<int> GetAllObject() override;
+    void ObjectAddCall( int i, const std::shared_ptr<Object>& object) override;
 
-    std::set<wchar_t> _gropsNames ;
-    std::unordered_map<wchar_t , std::set<std::shared_ptr<Object>>> _groups ;
+private:
+    void AddToGroupByName(int id, const std::wstring& name);
+
 };
 
 

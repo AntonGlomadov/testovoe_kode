@@ -5,5 +5,5 @@ class Tree : public Object{
 public:
     Tree();
     ~Tree();
-    Tree(std::wstring name, double x, double y);
+    Tree(std::wstring name, double x, double y,double creationTime);
 };

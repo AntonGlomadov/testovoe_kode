@@ -2,7 +2,7 @@
 #include "Object/Impl/Tree.hpp"
 #include <utility>
 
-Tree::Tree(std::wstring name, double x, double y) : Object(std::move(name), x, y) {
+Tree::Tree(std::wstring name, double x, double y,double creationTime) : Object(std::move(name), x, y,creationTime) {
     if (type_counts.find(L"Дерево") == type_counts.end()) {
         type_counts[L"Дерево"] = 1;
     } else {

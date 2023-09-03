@@ -23,6 +23,19 @@ public:
             return nullptr;
         }
     }
+    static std::shared_ptr<Object> createObject(const std::wstring& type,std::wstring name, double x, double y,double creationTime) {
+        if (type == L"Здание") {
+            return std::make_shared<Building> (name,x,y,creationTime);
+        } else if (type == L"Машина") {
+            return std::make_shared<Car> (name,x,y,creationTime);
+        } else if (type == L"Человек") {
+            return std::make_shared<Human> (name,x,y,creationTime);
+        } else if (type == L"Дерево") {
+            return std::make_shared<Tree> (name,x,y,creationTime);
+        } else {
+            return nullptr;
+        }
+    }
 };
 
 

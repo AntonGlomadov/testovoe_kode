@@ -1,14 +1,14 @@
 ﻿#pragma once
 #include <utility>
-#include <Reader/Implementations/FileReader.hpp>
+#include <Reader/Implementations/FileReaderWrite.hpp>
 #include <fstream>
 #include <iostream>
 #include <sstream>
 #include "Object/ObjectFactory.hpp"
 
-FileReader::FileReader(fs::path path): _file(std::move(path)) {}
+FileReaderWrite::FileReaderWrite(fs::path path): _file(std::move(path)) {}
 
-std::unordered_map<int,std::shared_ptr<Object>>FileReader::GetObjects() {
+std::unordered_map<int,std::shared_ptr<Object>>FileReaderWrite::GetObjects() {
     std::unordered_map<int,std::shared_ptr<Object>> objects;
 
     std::wifstream inputFile(_file);
@@ -26,9 +26,7 @@ std::unordered_map<int,std::shared_ptr<Object>>FileReader::GetObjects() {
         double creationTime;
 
         if (iss >> name >> x >> y >> type >> creationTime) {
-            auto object= ObjectFactory::createObject(type);
-            object->SetName(name);
-            object->SetCoordinates(x,y);
+            auto object= ObjectFactory::createObject(type, name, x,y,creationTime);
             objects[object->GetId()] = object;
         } else {
             std::wcerr << "Error parsing line: " << line << std::endl;
@@ -39,7 +37,7 @@ std::unordered_map<int,std::shared_ptr<Object>>FileReader::GetObjects() {
     return objects;
 }
 
-void FileReader::SaveObjects(const std::unordered_map<int,std::shared_ptr<Object>> &objects) {
+void FileReaderWrite::SaveObjects(const std::unordered_map<int,std::shared_ptr<Object>> &objects) {
     std::wofstream outputFile(_file);
 
     if (!outputFile.is_open()) {
@@ -55,7 +53,7 @@ void FileReader::SaveObjects(const std::unordered_map<int,std::shared_ptr<Object
     outputFile.close();
 }
 
-void FileReader::AppendObjects(const std::unordered_map<int,std::shared_ptr<Object>> &objects) {
+void FileReaderWrite::AppendObjects(const std::unordered_map<int,std::shared_ptr<Object>> &objects) {
     std::wofstream outputFile(_file, std::ios::app);
 
     if (!outputFile.is_open()) {
@@ -69,4 +67,21 @@ void FileReader::AppendObjects(const std::unordered_map<int,std::shared_ptr<Obje
         }
     }
     outputFile.close();
+}
+
+void FileReaderWrite::SaveInSpecifiedOrder(const std::unordered_map<int, std::shared_ptr<Object>> &objects,
+                                           const std::vector<int> &order) {
+    std::wofstream outputFile(_file);
+
+    if (!outputFile.is_open()) {
+        std::cerr << "Error opening file for writing: " << _file << std::endl;
+        return;
+    }
+
+    for (const auto& id : order) {
+        auto it = objects.find(id);
+        if (it != objects.end()) {
+            outputFile << it->second->toString() << std::endl;
+        }
+    }
 }

@@ -11,7 +11,7 @@ public:
     int Object::GetId() {
         return _id;
     }
-    Object(std::wstring name, double x, double y);
+    Object(std::wstring name, double x, double y,double creationTime);
     void SetName(std::wstring name);
     void SetCoordinates(double x, double y);
     std::wstring GetName();
