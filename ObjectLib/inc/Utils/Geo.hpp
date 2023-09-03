@@ -11,6 +11,6 @@ struct Point{
 };
 
  inline double distanceBetweenPoints(const Point& firstP,const Point& secondP){
-    return sqrt(pow(firstP._x - secondP._x,2) - pow(firstP._y - secondP._y,2));
+    return sqrt(pow(firstP._x - secondP._x,2) + pow(firstP._y - secondP._y,2));
 }
 
