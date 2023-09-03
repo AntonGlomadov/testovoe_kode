@@ -1,5 +1,5 @@
 ﻿#pragma once
-#include <Object.hpp>
+#include "Object/Object.hpp"
 
 class Human : public Object{
 public:

@@ -1,15 +1,19 @@
 ﻿#pragma once
-#include <Object.hpp>
-#include <Utils/Time.hpp>
+#include "Object/Object.hpp"
+#include "Utils/Time.hpp"
 #include <utility>
 
+std::unordered_map<std::wstring, int> Object::type_counts;
+int Object::_nextId = 0;
+
 Object::Object() {
+    _id =_nextId++;
     _creationTime = utils::getCurrentTimeInMillisecondsDouble();
 }
 
 Object::Object(std::wstring name, double x, double y): _name(std::move(name)), _coordinates({x, y}){
+    _id =_nextId++;
     _creationTime = utils::getCurrentTimeInMillisecondsDouble();
-
 }
 
 void Object::SetName(std::wstring name) {

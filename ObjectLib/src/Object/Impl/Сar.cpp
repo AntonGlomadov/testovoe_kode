@@ -1,5 +1,5 @@
 ﻿
-#include <ObjImplementations/Car.hpp>
+#include "Object/Impl/Car.hpp"
 #include <utility>
 
 Car::Car(std::wstring name, double x, double y) : Object(std::move(name), x, y) {

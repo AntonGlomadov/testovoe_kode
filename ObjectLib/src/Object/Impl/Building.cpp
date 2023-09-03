@@ -1,6 +1,6 @@
 ﻿#pragma once
 #include <utility>
-#include <ObjImplementations/Building.hpp>
+#include "Object/Impl/Building.hpp"
 
 Building::Building(std::wstring name, double x, double y) : Object(std::move(name), x, y) {
     if (type_counts.find(L"Здание") == type_counts.end()) {

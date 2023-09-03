@@ -4,12 +4,12 @@
 #include <fstream>
 #include <iostream>
 #include <sstream>
-#include "ObjectFactory.hpp"
+#include "Object/ObjectFactory.hpp"
 
 FileReader::FileReader(fs::path path): _file(std::move(path)) {}
 
-std::vector<std::shared_ptr<Object>>FileReader::GetObjects() {
-    std::vector<std::shared_ptr<Object>> objects;
+std::unordered_map<int,std::shared_ptr<Object>>FileReader::GetObjects() {
+    std::unordered_map<int,std::shared_ptr<Object>> objects;
 
     std::wifstream inputFile(_file);
     if (!inputFile.is_open()) {
@@ -29,7 +29,7 @@ std::vector<std::shared_ptr<Object>>FileReader::GetObjects() {
             auto object= ObjectFactory::createObject(type);
             object->SetName(name);
             object->SetCoordinates(x,y);
-            objects.push_back(object);
+            objects[object->GetId()] = object;
         } else {
             std::wcerr << "Error parsing line: " << line << std::endl;
         }
@@ -39,7 +39,7 @@ std::vector<std::shared_ptr<Object>>FileReader::GetObjects() {
     return objects;
 }
 
-void FileReader::SaveObjects(const std::vector<std::shared_ptr<Object>> &objects) {
+void FileReader::SaveObjects(const std::unordered_map<int,std::shared_ptr<Object>> &objects) {
     std::wofstream outputFile(_file);
 
     if (!outputFile.is_open()) {
@@ -48,14 +48,14 @@ void FileReader::SaveObjects(const std::vector<std::shared_ptr<Object>> &objects
     }
 
     for (const auto& objectPtr : objects) {
-        if (objectPtr) {
-            outputFile << objectPtr->toString() << '\n';
+        if (objectPtr.second) {
+            outputFile << objectPtr.second->toString() << '\n';
         }
     }
     outputFile.close();
 }
 
-void FileReader::AppendObjects(const std::vector<std::shared_ptr<Object>> &objects) {
+void FileReader::AppendObjects(const std::unordered_map<int,std::shared_ptr<Object>> &objects) {
     std::wofstream outputFile(_file, std::ios::app);
 
     if (!outputFile.is_open()) {
@@ -64,9 +64,8 @@ void FileReader::AppendObjects(const std::vector<std::shared_ptr<Object>> &objec
     }
 
     for (const auto& objectPtr : objects) {
-        if (objectPtr) {
-            auto z= objectPtr->toString();
-            outputFile << objectPtr->toString() << std::endl;
+        if (objectPtr.second) {
+            outputFile << objectPtr.second->toString() << std::endl;
         }
     }
     outputFile.close();

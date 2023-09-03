@@ -1,5 +1,5 @@
 ﻿
-#include <ObjImplementations/Tree.hpp>
+#include "Object/Impl/Tree.hpp"
 #include <utility>
 
 Tree::Tree(std::wstring name, double x, double y) : Object(std::move(name), x, y) {

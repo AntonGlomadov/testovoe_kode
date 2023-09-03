@@ -1,11 +1,12 @@
 ﻿#pragma once
 
 #include <memory>
-#include <Object.hpp>
-#include <ObjImplementations/Building.hpp>
-#include <ObjImplementations/Car.hpp>
-#include <ObjImplementations/Human.hpp>
-#include <ObjImplementations/Tree.hpp>
+
+#include <Object/Object.hpp>
+#include "Object/Impl/Building.hpp"
+#include "Object/Impl/Car.hpp"
+#include "Object/Impl/Human.hpp"
+#include "Object/Impl/Tree.hpp"
 
 class ObjectFactory {
 public:

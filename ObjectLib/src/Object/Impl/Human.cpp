@@ -1,5 +1,5 @@
 ﻿#pragma once
-#include <ObjImplementations/Human.hpp>
+#include "Object/Impl/Human.hpp"
 #include <utility>
 
 Human::Human(std::wstring name, double x, double y) : Object(std::move(name), x, y) {
