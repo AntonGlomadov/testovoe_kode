@@ -2,7 +2,7 @@
 
 #include <functional>
 #include <set>
-#include "Object/Object.hpp"
+#include <Object/Object.hpp>
 
 template <typename T>
 class Grouper {
